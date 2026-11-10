@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>市政设施修复施工协议（三方协议）</title>
+<style>
+  /* ============================================================
+     全局
+     ============================================================ */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: #e8eaee;
+    padding-bottom: 56px;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============================================================
+     工具栏
+     ============================================================ */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #d8dde5;
+    box-shadow: 0 2px 12px rgba(15, 30, 60, .07);
+    font-family: system-ui, -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-size: 14px;
+  }
+  .toolbar-title {
+    margin-right: auto;
+    font-weight: 600;
+    color: #33415c;
+    letter-spacing: .4px;
+    white-space: nowrap;
+  }
+  .toolbar-meta {
+    font-size: 12px;
+    color: #6b7280;
+    background: #f3f5f8;
+    border: 1px solid #e4e8ee;
+    border-radius: 4px;
+    padding: 3px 9px;
+    white-space: nowrap;
+    font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  }
+  .btn {
+    appearance: none;
+    border: 1px solid #c7d0dc;
+    background: #fff;
+    color: #2b3648;
+    padding: 7px 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background .18s, border-color .18s, transform .1s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: #f2f6fc; border-color: #8fa9c9; }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+  .btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+  .btn.ghost { color: #6b7280; border-color: #e2e6ec; }
+  .btn.ghost:hover { background: #f7f8fa; }
+  .btn.active { background: #fef2f2; border-color: #fca5a5; color: #b91c1c; }
+
+  /* ============================================================
+     A4 纸张 —— 每行 28 个三号字
+     纸张：210mm × 297mm
+     边距：上下 25.4mm / 左右 25.5mm（版心宽 159mm）
+     三号字 16pt × 28 字 ≈ 158.03mm < 159mm，余量约 1mm
+     ============================================================ */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    padding-top: 25.4mm;
+    padding-right: 25.5mm;
+    padding-bottom: 25.4mm;
+    padding-left: 25.5mm;
+
+    margin: 22px auto;
+    background: #ffffff;
+    box-shadow: 0 6px 28px rgba(15, 30, 60, .16);
+    position: relative;
+
+    font-family: "仿宋_GB2312", "FangSong_GB2312", "仿宋", FangSong,
+                 "STFangsong", "Songti SC", "SimSun", serif;
+    font-size: 16pt;
+    line-height: 28.8pt;
+    color: #000000;
+
+    overflow-wrap: break-word;
+    word-break: break-word;
+    outline: none;
+  }
+
+  /* 版心参考线（默认隐藏） */
+  .page::after {
+    content: '';
+    position: absolute;
+    top: 25.4mm;
+    right: 25.5mm;
+    bottom: 25.4mm;
+    left: 25.5mm;
+    border: 1px dashed rgba(220, 38, 38, .55);
+    pointer-events: none;
+    display: none;
+    z-index: 1;
+  }
+  body.show-guides .page::after { display: block; }
+
+  /* ============================================================
+     正文排版
+     ============================================================ */
+  #doc { outline: none; }
+
+  /* 大标题 */
+  #doc .doc-title {
+    font-family: "方正小标宋简体", "FZXiaoBiaoSong-B05S", "华文中宋",
+                 "STZhongsong", "Songti SC", "宋体", SimSun, serif;
+    font-size: 22pt;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 2pt;
+    line-height: 32pt;
+    margin: 0 0 8pt 0;
+    padding: 0;
+    text-indent: 0;
+  }
+
+  /* 普通段落 —— 首行缩进 2 字符，每行 28 字 */
+  #doc p {
+    margin: 0;
+    padding: 0;
+    text-indent: 32pt;
+    text-align: justify;
+    text-justify: inter-ideograph;
+    line-height: 28.8pt;
+    letter-spacing: 0;
+  }
+
+  /* 不缩进段落 */
+  #doc p.party,
+  #doc p.no-indent { text-indent: 0; }
+  #doc p.center   { text-align: center; text-indent: 0; }
+
+  /* 强制单行不折行（施工工期行） */
+  #doc p.nowrap { white-space: nowrap; }
+
+  /* 一级标题 */
+  #doc h2 {
+    font-family: "黑体", SimHei, "Heiti SC", "STHeiti",
+                 "Microsoft YaHei", sans-serif;
+    font-size: 16pt;
+    font-weight: 400;
+    line-height: 28.8pt;
+    margin: 0;
+    padding: 0;
+    text-indent: 0;
+    letter-spacing: 0;
+  }
+
+  /* ============================================================
+     签署栏 —— 表格 3 行
+     第 1 行：甲方/乙方/丙方（盖章）
+     第 2 行：法定代表人（换行）或授权人：
+     第 3 行：日期：  年  月  日
+     字体 16pt（三号），与正文一致
+     ============================================================ */
+  #doc .sign-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-top: 8pt;
+    font-size: 16pt;
+    line-height: 28.8pt;
+  }
+  #doc .sign-table td {
+    width: 33.333%;
+    vertical-align: top;
+    padding: 0;
+    text-indent: 0;
+    white-space: nowrap;
+    font-family: "仿宋_GB2312", "仿宋", FangSong, "STFangsong", serif;
+    font-size: 16pt;
+    line-height: 28.8pt;
+    letter-spacing: -0.3pt;   /* 确保“或授权人：”一行放下 */
+  }
+  /* 盖章与签字留白 */
+  #doc .sign-table tr.seal td { padding-bottom: 12mm; }
+  #doc .sign-table tr.sign td { padding-bottom: 8mm; }
+
+  /* ============================================================
+     Toast
+     ============================================================ */
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 36px;
+    transform: translate(-50%, 16px);
+    background: rgba(30, 41, 59, .94);
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: system-ui, -apple-system, "Microsoft YaHei", sans-serif;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 999;
+    max-width: 80vw;
+    text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  body.exporting .page { box-shadow: none !important; }
+
+  /* ============================================================
+     打印
+     ============================================================ */
+  @page {
+    size: 210mm 297mm;
+    margin-top: 25.4mm;
+    margin-right: 25.5mm;
+    margin-bottom: 25.4mm;
+    margin-left: 25.5mm;
+  }
+
+  @media print {
+    html, body {
+      background: #fff !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .toolbar, #toast { display: none !important; }
+
+    .page {
+      width: 100% !important;
+      min-height: auto !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      box-shadow: none !important;
+      break-after: page;
+      page-break-after: always;
+    }
+    .page:last-child {
+      break-after: auto;
+      page-break-after: auto;
+    }
+    .page::after { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== 工具栏 ==================== -->
+<div class="toolbar" id="toolbar">
+  <span class="toolbar-title">市政设施修复施工协议 · 每行28字版式</span>
+  <span class="toolbar-meta">边距 上下25.4 左右25.5mm</span>
+  <button class="btn"         type="button" onclick="doPreview()">打印预览</button>
+  <button class="btn"         type="button" onclick="doPrint()">打印</button>
+  <button class="btn"         type="button" onclick="exportWord()">下载 Word</button>
+  <button class="btn primary" type="button" onclick="exportPDF()">下载 PDF</button>
+  <button class="btn ghost"   type="button" onclick="toggleGuides()">版心参考线</button>
+  <button class="btn ghost"   type="button" onclick="resetDoc()">恢复初始内容</button>
+</div>
+
+<!-- ==================== 文档正文（可编辑） ==================== -->
+<div id="doc" contenteditable="true" spellcheck="false">
+
+  <!-- ================= 第 1 页 ================= -->
+  <div class="page">
+
+    <h1 class="doc-title">市政设施修复施工协议</h1>
+
+    <p class="party">甲方：唐山市路北区市政设施服务所</p>
+    <p class="party">乙方：（住建局全称）</p>
+    <p class="party">丙方：（施工单位全称）</p>
+
+    <p>为规范道路挖掘修复，明确三方权责，保障道路通行安全。丙方因工程施工，造成甲方管辖道路及设施破损，需实施修复；乙方负责项目统筹协调监管。经三方协商，达成如下协议：</p>
+
+    <h2>一、工程概况</h2>
+
+    <p>工程名称：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;路市政设施破损修复工程</p>
+    <p>破损情况：（具体设施类型、原材质、破损面积等情况描述清楚）</p>
+    <p>施工内容：丙方负责对施工造成的道路、附属设施破损部位修复，包含道路基层、面层、标线、路缘石等，修复后达到原道路使用标准。</p>
+    <p class="nowrap">施工工期：&nbsp;&nbsp;年&nbsp;&nbsp;月&nbsp;&nbsp;日至&nbsp;&nbsp;年&nbsp;&nbsp;月&nbsp;&nbsp;日</p>
+
+    <h2>二、三方职责</h2>
+
+    <p>甲方：道路权属管理单位，仅负责验收合格后的日常管护，不参与施工、不承担施工相关费用、安全及质量责任。</p>
+    <p>乙方：负责手续办理、周边协调，全程监督丙方文明施工、安全生产、按期完工，承担监管责任。</p>
+    <p>丙方：按规范施工，承担全部人工费、材料费、机械费等所有费用；负责围挡、扬尘管控、交通疏导、现场安全；接受甲乙双方检查验收，问题及时整改。</p>
+
+  </div>
+
+  <!-- ================= 第 2 页 ================= -->
+  <div class="page">
+
+    <h2>三、质量标准及验收</h2>
+
+    <p>丙方严格按照《城镇道路工程施工与质量验收规范》《城市道路养护技术规范》施工，材料合格，资料齐全。</p>
+    <p>完工丙方自检合格后，提交验收申请，由甲方牵头、乙方参与共同验收。验收不合格，丙方无偿返工直至合格，由此产生的一切工期延误、费用及相关责任，均由丙方自行承担。</p>
+
+    <h2>四、质量责任</h2>
+
+    <p>缺陷责任期&nbsp;&nbsp;&nbsp;&nbsp;36&nbsp;&nbsp;&nbsp;&nbsp;个月，自竣工验收合格之日起算。责任期内因施工质量问题出现沉降、开裂、破损等，丙方接到通知后无条件免费返修、恢复原状。</p>
+    <p>因修复质量问题引发安全事故、财产损失的，由乙方、丙方承担全部连带经济赔偿及法律责任。甲方不承担相关责任。</p>
+
+    <h2>五、争议解决</h2>
+
+    <p>发生争议优先协商；协商不成，任何一方均有权向工程所在地唐山市路北区人民法院提起诉讼。</p>
+
+    <h2>六、其他</h2>
+
+    <p>本协议自签字之日起正式生效。协议一式陆份，甲、乙、丙三方各执贰份，具有同等效力。（以下无正文）</p>
+
+    <table class="sign-table">
+      <tbody>
+        <tr class="seal">
+          <td>甲方（盖章）：</td>
+          <td>乙方（盖章）：</td>
+          <td>丙方（盖章）：</td>
+        </tr>
+        <tr class="sign">
+          <td>法定代表人<br>或授权人：</td>
+          <td>法定代表人<br>或授权人：</td>
+          <td>法定代表人<br>或授权人：</td>
+        </tr>
+        <tr>
+          <td>日期：&nbsp;年&nbsp;月&nbsp;日</td>
+          <td>日期：&nbsp;年&nbsp;月&nbsp;日</td>
+          <td>日期：&nbsp;年&nbsp;月&nbsp;日</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<!-- ==================== 第三方库 ==================== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+/* ============================================================
+   全局变量
+   ============================================================ */
+var DOC_NAME    = "市政设施修复施工协议";
+var docEl       = document.getElementById("doc");
+var initialHTML = docEl.innerHTML;
+var isExporting = false;
+
+/* 让编辑时回车生成 <p> */
+try { document.execCommand("defaultParagraphSeparator", false, "p"); } catch (e) {}
+
+/* ============================================================
+   Toast 提示
+   ============================================================ */
+var toastTimer = null;
+function toast(msg) {
+  var el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () {
+    el.classList.remove("show");
+  }, 2800);
+}
+
+/* ============================================================
+   粘贴：只保留纯文本
+   ============================================================ */
+docEl.addEventListener("paste", function (e) {
+  e.preventDefault();
+  var text = "";
+  if (e.clipboardData || window.clipboardData) {
+    text = (e.clipboardData || window.clipboardData).getData("text/plain");
+  }
+  document.execCommand("insertText", false, text);
+});
+
+/* ============================================================
+   检测是否在 iframe 中
+   ============================================================ */
+function inIframe() {
+  try { return window.self !== window.top; } catch (e) { return true; }
+}
+
+/* ============================================================
+   打印 / 打印预览
+   ============================================================ */
+function doPrint() {
+  try {
+    if (inIframe()) {
+      alert(
+        "当前页面在预览框架内，浏览器可能限制打印。\n\n" +
+        "如果打印窗口没有弹出，请：\n" +
+        "1. 在浏览器地址栏右侧点击“在新窗口打开”；\n" +
+        "2. 在新窗口中再点击“打印”或按 Ctrl+P。"
+      );
+    }
+    window.focus();
+    window.print();
+  } catch (e) {
+    alert("打印失败：" + e.message + "\n\n请使用浏览器菜单中的“打印”功能（Ctrl+P）。");
+  }
+}
+
+function doPreview() {
+  toast("正在打开打印预览… 请勾选「背景图形」并取消「页眉和页脚」");
+  setTimeout(doPrint, 260);
+}
+
+/* ============================================================
+   版心参考线开关
+   ============================================================ */
+function toggleGuides() {
+  var on = document.body.classList.toggle("show-guides");
+  var btns = document.querySelectorAll(".btn");
+  toast(on ? "版心参考线：开（红色虚线框内为版心 159×246.2mm）"
+           : "版心参考线：关");
+}
+
+/* ============================================================
+   导出 Word（.doc）
+   ============================================================ */
+var WORD_CSS = [
+  "@page WordSection1 {",
+  "  size: 21.0cm 29.7cm;",
+  "  mso-page-orientation: portrait;",
+  "  margin-top: 2.54cm;",
+  "  margin-right: 2.55cm;",
+  "  margin-bottom: 2.54cm;",
+  "  margin-left: 2.55cm;",
+  "  mso-header-margin: 1.5cm;",
+  "  mso-footer-margin: 1.75cm;",
+  "}",
+  "div.WordSection1 { page: WordSection1; }",
+
+  "body {",
+  "  font-family: '仿宋_GB2312', 'FangSong_GB2312', '仿宋', FangSong, SimSun, serif;",
+  "  font-size: 16.0pt;",
+  "  line-height: 28.8pt;",
+  "  color: #000000;",
+  "}",
+
+  "div.page { padding: 0cm; margin: 0cm; page-break-after: always; }",
+  "div.page:last-child { page-break-after: auto; }",
+
+  "h1.doc-title {",
+  "  font-family: '方正小标宋简体', 'FZXiaoBiaoSong-B05S', '华文中宋', 'STZhongsong', SimSun, serif;",
+  "  font-size: 22.0pt;",
+  "  font-weight: bold;",
+  "  text-align: center;",
+  "  letter-spacing: 2.0pt;",
+  "  line-height: 32.0pt;",
+  "  mso-line-height-rule: exactly;",
+  "  margin: 0cm 0cm 8.0pt 0cm;",
+  "  text-indent: 0cm;",
+  "}",
+
+  "p {",
+  "  margin: 0cm;",
+  "  padding: 0cm;",
+  "  text-indent: 32.0pt;",
+  "  mso-char-indent-count: 2.0;",
+  "  text-align: justify;",
+  "  text-justify: inter-ideograph;",
+  "  line-height: 28.8pt;",
+  "  mso-line-height-rule: exactly;",
+  "  font-size: 16.0pt;",
+  "  font-family: '仿宋_GB2312', '仿宋', FangSong, SimSun, serif;",
+  "}",
+
+  "p.party, p.no-indent, p.center { text-indent: 0cm; mso-char-indent-count: 0; }",
+  "p.center { text-align: center; }",
+  "p.nowrap { white-space: nowrap; }",
+
+  "h2 {",
+  "  font-family: '黑体', SimHei, sans-serif;",
+  "  font-size: 16.0pt;",
+  "  font-weight: normal;",
+  "  line-height: 28.8pt;",
+  "  mso-line-height-rule: exactly;",
+  "  margin: 0cm;",
+  "  padding: 0cm;",
+  "  text-indent: 0cm;",
+  "  mso-char-indent-count: 0;",
+  "}",
+
+  "table.sign-table {",
+  "  border-collapse: collapse;",
+  "  width: 100%;",
+  "  margin-top: 8.0pt;",
+  "  mso-table-lspace: 0pt;",
+  "  mso-table-rspace: 0pt;",
+  "}",
+  "table.sign-table td {",
+  "  width: 33.33%;",
+  "  vertical-align: top;",
+  "  padding: 0cm;",
+  "  text-indent: 0cm;",
+  "  white-space: nowrap;",
+  "  font-size: 16.0pt;",
+  "  line-height: 28.8pt;",
+  "  mso-line-height-rule: exactly;",
+  "  letter-spacing: -0.3pt;",
+  "  font-family: '仿宋_GB2312', '仿宋', FangSong, SimSun, serif;",
+  "}",
+  "table.sign-table tr.seal td { padding-bottom: 12.0mm; }",
+  "table.sign-table tr.sign td { padding-bottom: 8.0mm; }"
+].join("\n");
+
+function exportWord() {
+  try {
+    var clone = docEl.cloneNode(true);
+    clone.removeAttribute("contenteditable");
+    clone.removeAttribute("spellcheck");
+
+    var html =
+      "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
+      "xmlns:w='urn:schemas-microsoft-com:office:word' " +
+      "xmlns='http://www.w3.org/TR/REC-html40'>" +
+      "<head><meta charset='utf-8'>" +
+      "<title>" + DOC_NAME + "</title>" +
+      "<!--[if gte mso 9]><xml><w:WordDocument>" +
+      "<w:View>Print</w:View><w:Zoom>100</w:Zoom>" +
+      "<w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->" +
+      "<style>" + WORD_CSS + "</style></head>" +
+      "<body><div class='WordSection1'>" + clone.innerHTML + "</div></body></html>";
+
+    var blob = new Blob(["\ufeff", html], { type: "application/msword;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = DOC_NAME + ".doc";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 800);
+
+    toast("Word 文件已开始下载（边距 上下25.4 左右25.5mm）");
+  } catch (err) {
+    alert("Word 导出失败：" + err.message + "\n\n请改用“打印”功能，在打印窗口中选择“另存为 PDF”或“导出为 Word”。");
+  }
+}
+
+/* ============================================================
+   导出 PDF
+   ============================================================ */
+function exportPDF() {
+  if (isExporting) return;
+
+  if (typeof window.html2canvas === "undefined" ||
+      typeof window.jspdf === "undefined" ||
+      !window.jspdf.jsPDF) {
+    alert(
+      "PDF 组件未加载成功（可能因为网络原因）。\n\n" +
+      "您可以改用“打印”功能：\n" +
+      "1. 点击“打印”；\n" +
+      "2. 在打印窗口中选择“另存为 PDF”或“Microsoft Print to PDF”。"
+    );
+    return;
+  }
+
+  isExporting = true;
+  document.body.classList.add("exporting");
+
+  var jsPDF    = window.jspdf.jsPDF;
+  var pdf      = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+  var pages    = document.querySelectorAll(".page");
+  var pageW    = 210;
+  var pageH    = 297;
+  var index    = 0;
+
+  function renderNext() {
+    if (index >= pages.length) {
+      pdf.save(DOC_NAME + ".pdf");
+      document.body.classList.remove("exporting");
+      isExporting = false;
+      toast("PDF 文件已开始下载（边距与屏幕一致）");
+      return;
+    }
+
+    window.html2canvas(pages[index], {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+      logging: false
+    }).then(function (canvas) {
+      var imgData = canvas.toDataURL("image/jpeg", 0.96);
+      if (index > 0) pdf.addPage();
+
+      var ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
+      var w = canvas.width * ratio;
+      var h = canvas.height * ratio;
+
+      pdf.addImage(imgData, "JPEG", (pageW - w) / 2, 0, w, h, undefined, "FAST");
+      index++;
+      renderNext();
+    }).catch(function (err) {
+      document.body.classList.remove("exporting");
+      isExporting = false;
+      alert(
+        "PDF 生成失败：" + err.message + "\n\n" +
+        "请改用“打印”功能，在打印窗口中选择“另存为 PDF”。"
+      );
+    });
+  }
+
+  renderNext();
+}
+
+/* ============================================================
+   恢复初始内容
+   ============================================================ */
+function resetDoc() {
+  if (confirm("确定恢复到协议初始内容吗？当前编辑的内容将丢失。")) {
+    docEl.innerHTML = initialHTML;
+    toast("已恢复初始内容");
+  }
+}
+
+/* ============================================================
+   全局错误捕获
+   ============================================================ */
+window.onerror = function (msg, url, line) {
+  console.error("脚本错误：" + msg + " 行号：" + line);
+  return false;
+};
+</script>
+</body>
+</html>
